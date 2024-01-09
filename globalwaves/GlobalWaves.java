@@ -126,6 +126,12 @@ public final class GlobalWaves {
         output.setResult(new HashMap<String, MonetizationStats>());
         Map<String, MonetizationStats> resultMap =
                 (Map<String, MonetizationStats>) output.getResult();
+        /* Firstly, update the monetization from each listener that still has a premium subscription */
+        for (Listener listener : this.users.values()) {
+            if (listener.isPremium()) {
+                listener.getStats().updateMonetization();
+            }
+        }
         for (Artist artist : this.artists.values()) {
             ArtistStats stats = artist.getStats();
             MonetizationStats monetizationStats = stats.getMonetizationStats();
@@ -136,6 +142,12 @@ public final class GlobalWaves {
         sortMap(resultMap);
         return output;
     }
+
+    /**
+     * Sorts the artists' monetization statistics by their total revenue
+     * then by their username (lexicographically)
+     * @param map map that will be sorted and added to the output result
+     */
     public void sortMap(final Map<String, MonetizationStats> map) {
         AtomicInteger ranking = new AtomicInteger(1);
         Map<String, MonetizationStats> sortedMap = map.entrySet().stream()

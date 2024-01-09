@@ -140,6 +140,7 @@ public final class Listener extends User implements UserStatistics {
             output.setMessage(super.getUsername() + " is not a premium user.");
             return output;
         }
+        this.stats.updateMonetization();
         this.isPremium = false;
         this.credits = 0;
         output.setMessage(super.getUsername() + " cancelled the subscription successfully.");

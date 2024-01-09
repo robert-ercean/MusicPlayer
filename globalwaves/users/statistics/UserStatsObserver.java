@@ -1,7 +1,6 @@
 package globalwaves.users.statistics;
 
 import fileio.input.CommandInput;
-import globalwaves.process.Command;
 import globalwaves.users.listener.player.Player;
 import lombok.Getter;
 import output.Output;
@@ -16,6 +15,9 @@ public abstract class UserStatsObserver {
     public abstract Output display(CommandInput command);
     public abstract void update(String eventType, Player userPlayer, int idx);
     public abstract boolean isEmpty();
+    /**
+     * Equals and hashCode methods override by checking only the username field
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
