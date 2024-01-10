@@ -129,8 +129,14 @@ public final class ProcessCommand {
                 case "cancelPremium":
                     outputs.add(objectMapper.valueToTree(cancelPremium(command)));
                     break;
+                case "subscribe":
+                    outputs.add(objectMapper.valueToTree(processSubscribeCommand(command)));
+                    break;
                 case "wrapped":
                     outputs.add(objectMapper.valueToTree(wrapped(command)));
+                    break;
+                case "getNotifications":
+                    outputs.add(objectMapper.valueToTree(processGetNotifications(command)));
                     break;
                 /* Admin commands */
                 case "deleteUser", "addUser", "getTop5Albums", "getTop5Songs",
@@ -144,6 +150,12 @@ public final class ProcessCommand {
         }
         outputs.add(objectMapper.valueToTree(endProgram()));
         return outputs;
+    }
+    private static Output processGetNotifications(final CommandInput command) {
+        return GlobalWaves.getInstance().getNotifications(command);
+    }
+    private static Output processSubscribeCommand(final CommandInput command) {
+        return GlobalWaves.getInstance().subscribe(command);
     }
     private static Output processAdminCommands(final CommandInput command) {
         return GlobalWaves.getInstance().executeAdminCommand(command);

@@ -1,7 +1,9 @@
 package globalwaves.users.listener.notifications;
 
-public interface Notifications {
+import globalwaves.users.User;
+
+public interface NotificationsFunctionalities {
     String registerSubscriber(NotificationsObserver o);
     String removeSubscriber(NotificationsObserver o);
-    void notifySubscribers(String eventType);
+    void notifySubscribers(String eventType, User user);
 }

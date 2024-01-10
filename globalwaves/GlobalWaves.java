@@ -10,6 +10,7 @@ import globalwaves.users.User;
 import globalwaves.users.UserExistenceContext;
 import globalwaves.users.UserExistenceStrategy;
 import globalwaves.users.listener.Listener;
+import globalwaves.users.listener.notifications.Notification;
 import globalwaves.users.listener.player.Player;
 import globalwaves.users.statistics.ArtistStats;
 import lombok.Getter;
@@ -100,6 +101,12 @@ public final class GlobalWaves {
             }
         }
         return null;
+    }
+    public Output getNotifications(final CommandInput command) {
+        Output output = Output.getOutputTemplate(command);
+        Listener user = this.listeners.get(command.getUsername());
+        output.setNotifications(user.getNotifications());
+        return output;
     }
     public Output cancelPremium(CommandInput command) {
         Listener user = this.listeners.get(command.getUsername());
@@ -249,6 +256,18 @@ public final class GlobalWaves {
         Output output = Output.getOutputTemplate(command);
         Listener user = this.listeners.get(command.getUsername());
         output.setMessage(user.changePage(command));
+        return output;
+    }
+    /**
+     * Calls the user instance to subscribe to an artist/host
+     */
+    public Output subscribe(final CommandInput command) {
+        Output output = Output.getOutputTemplate(command);
+        if (!userExists(command, output, "listener")) {
+            return output;
+        }
+        Listener user = this.listeners.get(command.getUsername());
+        output.setMessage(user.subscribe(command));
         return output;
     }
     /**

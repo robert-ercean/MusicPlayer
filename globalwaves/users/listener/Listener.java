@@ -18,6 +18,7 @@ import globalwaves.users.artist.Artist;
 import globalwaves.users.artist.Merch;
 import globalwaves.users.host.Host;
 import globalwaves.users.listener.notifications.ListenerNotifications;
+import globalwaves.users.listener.notifications.Notification;
 import globalwaves.users.listener.search.SearchContext;
 import globalwaves.users.listener.search.SearchStrategy;
 import globalwaves.users.User;
@@ -126,6 +127,14 @@ public final class Listener extends User implements UserStatistics {
         }
         return "The merch " + merchName + " doesn't exist.";
     }
+
+    /**
+     * Method for subscribing to an artist or host
+     * This listener will be notified when the artist or
+     * host posts a new event, merch, album or podcast
+     * @param command to get the basic output template
+     * @return success/error message
+     */
     public String subscribe(CommandInput command) {
         Output output = Output.getOutputTemplate(command);
         switch (this.currentPage.getPageType()) {
@@ -163,6 +172,13 @@ public final class Listener extends User implements UserStatistics {
         output.setMessage(super.getUsername() + " cancelled the subscription successfully.");
         return output;
     }
+    public List<Notification> getNotifications() {
+        List<Notification> notifications = this.notifications.getNotifications();
+        // need to copy this list because the notifications are cleared after being displayed
+        List<Notification> notificationsCopy = new ArrayList<>(notifications);
+        notifications.clear();
+        return notificationsCopy;
+    }
     public boolean isPremium() {
         return this.isPremium;
     }
@@ -183,6 +199,7 @@ public final class Listener extends User implements UserStatistics {
         this.stats = new ListenerStats(super.getUsername());
         this.statsObservers = new ArrayList<>();
         this.registerStatsObserver(this.stats);
+        this.notifications = new ListenerNotifications(super.getUsername());
     }
     public Listener(final UserInput userInput) {
         super.setUsername(userInput.getUsername());
@@ -198,6 +215,7 @@ public final class Listener extends User implements UserStatistics {
         this.stats = new ListenerStats(super.getUsername());
         this.statsObservers = new ArrayList<>();
         this.registerStatsObserver(this.stats);
+        this.notifications = new ListenerNotifications(super.getUsername());
     }
     /**
      * Returns the user's current page as a String

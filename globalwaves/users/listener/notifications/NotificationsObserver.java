@@ -1,11 +1,12 @@
 package globalwaves.users.listener.notifications;
 
+import globalwaves.users.User;
 import lombok.Getter;
 
 @Getter
 public abstract class NotificationsObserver {
     String username;
-    public abstract void update(String eventType);
+    public abstract void update(String eventType, User user);
 
     /**
      * Equals override to check if a notifications observer is already in

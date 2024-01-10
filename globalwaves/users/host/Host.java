@@ -5,7 +5,7 @@ import fileio.input.EpisodeInput;
 import fileio.input.PodcastInput;
 import globalwaves.GlobalWaves;
 import globalwaves.users.User;
-import globalwaves.users.listener.notifications.Notifications;
+import globalwaves.users.listener.notifications.NotificationsFunctionalities;
 import globalwaves.users.listener.notifications.NotificationsObserver;
 import globalwaves.users.statistics.HostStats;
 import globalwaves.users.listener.Listener;
@@ -25,7 +25,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public final class Host extends User implements Notifications {
+public final class Host extends User implements NotificationsFunctionalities {
     private final Page hostpage;
     private final HostStats stats;
     private List<NotificationsObserver> notificationsObservers;
@@ -53,9 +53,9 @@ public final class Host extends User implements Notifications {
         return o.getUsername() + " unsubscribed from " + this.getUsername() + " successfully.";
     }
     @Override
-    public void notifySubscribers(String eventType) {
+    public void notifySubscribers(String eventType, User user) {
         for (NotificationsObserver o : this.notificationsObservers) {
-            o.update(eventType);
+            o.update(eventType, user);
         }
     }
     public HostPage getHostpage() {
@@ -88,6 +88,7 @@ public final class Host extends User implements Notifications {
         Podcast podcast = new Podcast(name, owner, episodes);
         hostPage.getPodcasts().add(podcast);
         GlobalWaves.getInstance().getLibrary().getPodcasts().add(new PodcastInput(podcast));
+        this.notifySubscribers("newPodcast", this);
         return (command.getUsername() + " has added new podcast successfully.");
     }
     /**
@@ -157,6 +158,7 @@ public final class Host extends User implements Notifications {
             return (command.getUsername() + " has already added an announcement with this name.");
         }
         hostPage.getAnnouncements().add(announcement);
+        this.notifySubscribers("newAnnouncement", this);
         return (command.getUsername() + " has successfully added new announcement.");
     }
 

@@ -1,6 +1,7 @@
 package output;
 
 import fileio.input.CommandInput;
+import globalwaves.users.listener.notifications.Notification;
 import lombok.Getter;
 import lombok.Setter;
 import globalwaves.users.listener.player.Player;
@@ -17,7 +18,7 @@ public class Output {
     private List<String> results;
     private PlayerStatsForOutput stats;
     public Object result; // result Object list for showPlaylists, showLikedSongs, showPodcasts
-
+    private List<Notification> notifications;
     public Output(final String commandName) {
         this.command = commandName;
     }

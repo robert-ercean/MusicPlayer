@@ -6,7 +6,7 @@ import fileio.input.CommandInput;
 import fileio.input.SongInput;
 import globalwaves.GlobalWaves;
 import globalwaves.users.User;
-import globalwaves.users.listener.notifications.Notifications;
+import globalwaves.users.listener.notifications.NotificationsFunctionalities;
 import globalwaves.users.listener.notifications.NotificationsObserver;
 import globalwaves.users.statistics.ArtistStats;
 import globalwaves.users.listener.Listener;
@@ -27,7 +27,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public final class Artist extends User implements Notifications {
+public final class Artist extends User implements NotificationsFunctionalities {
     private final Page artistpage;
     private final ArtistStats stats;
     private List<NotificationsObserver> notificationsObservers;
@@ -53,9 +53,9 @@ public final class Artist extends User implements Notifications {
         return o.getUsername() + " unsubscribed from " + this.getUsername() + " successfully.";
     }
     @Override
-    public void notifySubscribers(String eventType) {
+    public void notifySubscribers(String eventType, User user) {
         for (NotificationsObserver o : this.notificationsObservers) {
-            o.update(eventType);
+            o.update(eventType, user);
         }
     }
 
@@ -95,6 +95,7 @@ public final class Artist extends User implements Notifications {
             return ("Event for " + command.getUsername() + " does not have a valid date.");
         }
         artistPage.getEvents().add(event);
+        this.notifySubscribers("newEvent", this);
         return (command.getUsername() + " has added new event successfully.");
     }
     /**
@@ -130,6 +131,7 @@ public final class Artist extends User implements Notifications {
             return ("Price for merchandise can not be negative.");
         }
         artistPage.getMerch().add(merch);
+        this.notifySubscribers("newMerch", this);
         return (command.getUsername() + " has added new merchandise successfully.");
     }
     /**
@@ -163,6 +165,7 @@ public final class Artist extends User implements Notifications {
             GlobalWaves.getInstance().getLibrary().getSongs().add(new SongInput(song));
         }
         artistPage.getAlbums().add(album);
+        this.notifySubscribers("newAlbum", this);
         return (artistName + " has added new album successfully.");
     }
     /**
@@ -202,7 +205,7 @@ public final class Artist extends User implements Notifications {
             return (artistName + " can't delete this album.");
         }
         artistPage.getAlbums().remove(album);
-        return (artistName + " has deleted the album successfully.");
+        return (artistName + " deleted the album successfully.");
     }
     public ArtistPage getArtistpage() {
         return (ArtistPage) this.artistpage;
