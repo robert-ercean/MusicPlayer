@@ -15,7 +15,7 @@ import static constants.Constants.MAX;
 public final class PodcastSearchStrategy implements SearchStrategy {
     @Override   
     public Output search(final CommandInput command) {
-        Listener user = GlobalWaves.getInstance().getUsers().get(command.getUsername());
+        Listener user = GlobalWaves.getInstance().getListeners().get(command.getUsername());
         List<PodcastInput> allPodcasts = GlobalWaves.getInstance().getLibrary().getPodcasts();
         List<Podcast> matchingPodcasts = new ArrayList<>();
         for (PodcastInput podcast : allPodcasts) {

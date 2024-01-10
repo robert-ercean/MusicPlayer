@@ -13,12 +13,12 @@ public class ArtistExistenceStrategy implements UserExistenceStrategy {
     public boolean exists(CommandInput command, Output output) {
         Map<String, Artist> artists = GlobalWaves.getInstance().getArtists();
         Map<String, Host> hosts = GlobalWaves.getInstance().getHosts();
-        if (!GlobalWaves.getInstance().getUsers().containsKey(command.getUsername())
+        if (!GlobalWaves.getInstance().getListeners().containsKey(command.getUsername())
                 && !hosts.containsKey(command.getUsername())
                 && !artists.containsKey(command.getUsername())) {
             output.setMessage("The username " + command.getUsername() + " doesn't exist.");
             return false;
-        } else if ((GlobalWaves.getInstance().getUsers().containsKey(command.getUsername())
+        } else if ((GlobalWaves.getInstance().getListeners().containsKey(command.getUsername())
                 || hosts.containsKey(command.getUsername()))
                 && !artists.containsKey(command.getUsername())) {
             output.setMessage(command.getUsername() + " is not an artist.");

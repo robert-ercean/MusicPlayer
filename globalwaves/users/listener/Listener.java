@@ -14,9 +14,10 @@ import globalwaves.audiofiles.Song;
 import fileio.input.CommandInput;
 import fileio.input.UserInput;
 import globalwaves.pages.artist.ArtistPage;
-import globalwaves.process.ProcessCommand;
 import globalwaves.users.artist.Artist;
 import globalwaves.users.artist.Merch;
+import globalwaves.users.host.Host;
+import globalwaves.users.listener.notifications.ListenerNotifications;
 import globalwaves.users.listener.search.SearchContext;
 import globalwaves.users.listener.search.SearchStrategy;
 import globalwaves.users.User;
@@ -28,7 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import globalwaves.pages.Page;
 import globalwaves.pages.factory.PageFactory;
-import globalwaves.pages.user.LikedContentPage;
+import globalwaves.pages.listener.LikedContentPage;
 import output.Output;
 
 import static constants.Constants.CONNECTED;
@@ -88,19 +89,21 @@ public final class Listener extends User implements UserStatistics {
     private Boolean hasSelection = false;
     private String connectionStatus;
     private List<UserStatsObserver> statsObservers;
+    private ListenerNotifications notifications;
+
     @Override
-    public void registerObserver(UserStatsObserver o) {
+    public void registerStatsObserver(UserStatsObserver o) {
         if (this.statsObservers.contains(o)) {
             return;
         }
         this.statsObservers.add(o);
     }
     @Override
-    public void removeObserver(UserStatsObserver o) {
+    public void removeStatsObserver(UserStatsObserver o) {
         this.statsObservers.remove(o);
     }
     @Override
-    public void notifyObservers(String eventType, Player userPlayer, int idx) {
+    public void notifyStatsObservers(String eventType, Player userPlayer, int idx) {
         for (UserStatsObserver observer : statsObservers) {
             observer.update(eventType, userPlayer, idx);
         }
@@ -122,6 +125,20 @@ public final class Listener extends User implements UserStatistics {
             }
         }
         return "The merch " + merchName + " doesn't exist.";
+    }
+    public String subscribe(CommandInput command) {
+        Output output = Output.getOutputTemplate(command);
+        switch (this.currentPage.getPageType()) {
+            case "artist" -> {
+                Artist artist = (Artist) this.currentPage.getOwner();
+                return (artist.registerSubscriber(this.notifications));
+            }
+            case "host" -> {
+                Host host = (Host) this.currentPage.getOwner();
+                return (host.registerSubscriber(this.notifications));
+            }
+        }
+        return ("To subscribe you need to be on the page of an artist or host.");
     }
     public Output buyPremium(Output output) {
         updatePlayerTime(this, output.getTimestamp());
@@ -165,7 +182,7 @@ public final class Listener extends User implements UserStatistics {
         this.currentPage = this.homePage;
         this.stats = new ListenerStats(super.getUsername());
         this.statsObservers = new ArrayList<>();
-        this.registerObserver(this.stats);
+        this.registerStatsObserver(this.stats);
     }
     public Listener(final UserInput userInput) {
         super.setUsername(userInput.getUsername());
@@ -180,7 +197,7 @@ public final class Listener extends User implements UserStatistics {
         this.boughtMerch = new ArrayList<>();
         this.stats = new ListenerStats(super.getUsername());
         this.statsObservers = new ArrayList<>();
-        this.registerObserver(this.stats);
+        this.registerStatsObserver(this.stats);
     }
     /**
      * Returns the user's current page as a String
@@ -245,7 +262,7 @@ public final class Listener extends User implements UserStatistics {
     }
     @Override
     public boolean isInteracting() {
-        for (Listener user : GlobalWaves.getInstance().getUsers().values()) {
+        for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
             Player player = user.getUserPlayer();
             if (Player.isEmpty(player)) {
                 continue;
@@ -846,7 +863,7 @@ public final class Listener extends User implements UserStatistics {
         switch (this.getSelectedItemType()) {
             case "song":
                 this.setUserPlayer(new Player(this.getSelectedSong(), super.getUsername()));
-                this.notifyObservers("song", this.userPlayer, 0);
+                this.notifyStatsObservers("song", this.userPlayer, 0);
                 this.setSearchedSongs(null);
                 break;
             case "podcast":

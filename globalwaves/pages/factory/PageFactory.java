@@ -1,10 +1,10 @@
 package globalwaves.pages.factory;
 
 import globalwaves.pages.artist.ArtistPage;
-import globalwaves.pages.user.HomePage;
+import globalwaves.pages.listener.HomePage;
 import globalwaves.pages.host.HostPage;
 import globalwaves.pages.Page;
-import globalwaves.pages.user.LikedContentPage;
+import globalwaves.pages.listener.LikedContentPage;
 
 public final class PageFactory {
     private PageFactory() {

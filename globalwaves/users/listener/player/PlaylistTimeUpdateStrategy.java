@@ -22,7 +22,7 @@ public class PlaylistTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                 if (songIdx + 1 >= playlistSize || pastTime > remainingTime) {
                     int startIdx = (songIdx == 0) ? 0 : oldIdx + 1;
                     for (int i = startIdx; i < playlistSize; i++) {
-                        user.notifyObservers("playlist", userPlayer, i);
+                        user.notifyStatsObservers("playlist", userPlayer, i);
                     }
                     user.setPlayerToEmpty();
                     user.getUserPlayer().getCurrentPlaylist().setIdx(0);
@@ -31,7 +31,7 @@ public class PlaylistTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                 newIdx = userPlayer.getCurrentPlaylist().getSongIdxByElapsedTime(pastTime, songIdx + 1);
                 if (newIdx == -1) { // this means that we finished the playlist
                     for (int i = (oldIdx == 0) ? 0 : oldIdx + 1; i < playlistSize; i++) {
-                        user.notifyObservers("playlist", userPlayer, i);
+                        user.notifyStatsObservers("playlist", userPlayer, i);
                     }
                     user.setPlayerToEmpty();
                     break;
@@ -44,7 +44,7 @@ public class PlaylistTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                 userPlayer.getCurrentPlaylist().setIdx(newIdx);
                 // iterate over all the played songs and notify the observers of each one
                 for (int i = (oldIdx == 0) ? 0 : oldIdx + 1; i <= newIdx; i++) {
-                    user.notifyObservers("playlist", userPlayer, i);
+                    user.notifyStatsObservers("playlist", userPlayer, i);
                 }
                 break;
             case REPEAT_ALL:

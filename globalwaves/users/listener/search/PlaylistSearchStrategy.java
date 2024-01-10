@@ -16,7 +16,7 @@ import static constants.Constants.PRIVATE;
 public final class PlaylistSearchStrategy implements SearchStrategy {
     @Override
     public Output search(final CommandInput command) {
-        Listener user = GlobalWaves.getInstance().getUsers().get(command.getUsername());
+        Listener user = GlobalWaves.getInstance().getListeners().get(command.getUsername());
         List<Playlist> allPlaylists = GlobalWaves.getInstance().
                 getUserInteractions().getPlaylists();
         List<Playlist> matchingPlaylists = new ArrayList<>();

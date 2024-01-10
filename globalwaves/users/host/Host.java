@@ -5,6 +5,8 @@ import fileio.input.EpisodeInput;
 import fileio.input.PodcastInput;
 import globalwaves.GlobalWaves;
 import globalwaves.users.User;
+import globalwaves.users.listener.notifications.Notifications;
+import globalwaves.users.listener.notifications.NotificationsObserver;
 import globalwaves.users.statistics.HostStats;
 import globalwaves.users.listener.Listener;
 import globalwaves.users.listener.player.Player;
@@ -23,9 +25,10 @@ import java.util.Map;
 
 @Getter
 @Setter
-public final class Host extends User {
+public final class Host extends User implements Notifications {
     private final Page hostpage;
     private final HostStats stats;
+    private List<NotificationsObserver> notificationsObservers;
     /**
      * Constructor for the host
      */
@@ -35,6 +38,25 @@ public final class Host extends User {
         super.setAge(command.getAge());
         this.hostpage = PageFactory.createPage(null, "host", super.getUsername());
         this.stats = new HostStats(super.getUsername());
+    }
+    @Override
+    public String registerSubscriber(NotificationsObserver o) {
+        if (this.notificationsObservers.contains(o)) {
+            return removeSubscriber(o);
+        }
+        this.notificationsObservers.add(o);
+        return o.getUsername() + " subscribed to " + this.getUsername() + " successfully.";
+    }
+    @Override
+    public String removeSubscriber(NotificationsObserver o) {
+        this.notificationsObservers.remove(o);
+        return o.getUsername() + " unsubscribed from " + this.getUsername() + " successfully.";
+    }
+    @Override
+    public void notifySubscribers(String eventType) {
+        for (NotificationsObserver o : this.notificationsObservers) {
+            o.update(eventType);
+        }
     }
     public HostPage getHostpage() {
         return (HostPage) this.hostpage;
@@ -156,7 +178,7 @@ public final class Host extends User {
     }
     @Override
     public boolean isInteracting() {
-        for (Listener user : GlobalWaves.getInstance().getUsers().values()) {
+        for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
             // cant delete if a user's current page is the host page
             if (user.getCurrentPage().getOwner().equals(super.getUsername())) {
                 return true;

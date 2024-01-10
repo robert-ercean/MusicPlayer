@@ -16,7 +16,7 @@ import static constants.Constants.MAX;
 public final class SongSearchStrategy implements SearchStrategy {
     @Override
     public Output search(final CommandInput command) {
-        Listener user = GlobalWaves.getInstance().getUsers().get(command.getUsername());
+        Listener user = GlobalWaves.getInstance().getListeners().get(command.getUsername());
         List<SongInput> allSongs = GlobalWaves.getInstance().getLibrary().getSongs();
         List<Song> matchingSongs = new ArrayList<>();
         for (SongInput song : allSongs) {

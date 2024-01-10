@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 /**
  * Helper class to display the "result" field of the output variable
- * as shown in the homework statement.
+ * as shown in the homework assignment.
  * Contains all the possible fields of all the statistics classes.
  * (Stats for listeners, hosts and artists)
  * The fields are set in the respective classes and then added to the output.

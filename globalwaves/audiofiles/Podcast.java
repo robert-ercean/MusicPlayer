@@ -33,7 +33,7 @@ public final class Podcast {
      * Checks if the podcast is loaded in any listener's player
      */
     public boolean isLoaded() {
-        for (Listener user : GlobalWaves.getInstance().getUsers().values()) {
+        for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
             Player player = user.getUserPlayer();
             if (player != null && player.getCurrentPodcast() != null
                     && player.getCurrentPodcast().getName().equals(this.name)) {

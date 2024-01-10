@@ -13,7 +13,7 @@ import static constants.Constants.MAX;
 public final class HostSearchStrategy implements SearchStrategy {
     @Override
     public Output search(final CommandInput command) {
-        Listener user = GlobalWaves.getInstance().getUsers().get(command.getUsername());
+        Listener user = GlobalWaves.getInstance().getListeners().get(command.getUsername());
         List<String> hosts = new ArrayList<>();
         for (String host : GlobalWaves.getInstance().getHosts().keySet()) {
             if (host.toLowerCase().startsWith(command.getFilters().getName().toLowerCase())) {

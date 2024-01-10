@@ -52,7 +52,7 @@ public final class Album {
      * Checks to see if the album is loaded, used when removing an album
      */
     public boolean isLoaded() {
-        for (Listener user : GlobalWaves.getInstance().getUsers().values()) {
+        for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
             Player player = user.getUserPlayer();
             if (player != null && player.getCurrentSong() != null
                     && player.getCurrentSong().getAlbum().equals(this.name)) {

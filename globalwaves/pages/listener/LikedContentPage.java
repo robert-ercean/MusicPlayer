@@ -1,7 +1,9 @@
-package globalwaves.pages.user;
+package globalwaves.pages.listener;
 
+import globalwaves.GlobalWaves;
 import globalwaves.audiofiles.Playlist;
 import globalwaves.audiofiles.Song;
+import globalwaves.users.User;
 import lombok.Getter;
  import lombok.Setter;
 import globalwaves.pages.Page;
@@ -19,6 +21,12 @@ public class LikedContentPage extends Page {
         super(owner);
         this.followedPlaylists = new ArrayList<>();
         this.likedSongs = new ArrayList<>();
+    }
+    /**
+     * @return "User" class instance of the owner of this page
+     */
+    public User getOwner() {
+        return GlobalWaves.getInstance().getListeners().get(super.owner);
     }
     /**
      * @return a string containing the liked songs and followed playlists

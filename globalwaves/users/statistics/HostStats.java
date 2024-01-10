@@ -9,9 +9,7 @@ import output.Output;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class HostStats extends UserStatsObserver {
     private final Map<String, Integer> topEpisodes;
@@ -30,7 +28,7 @@ public class HostStats extends UserStatsObserver {
         if (eventType.equals("episode")) {
             EpisodeInput episode = (EpisodeInput) userPlayer.getCurrentPodcast().getEpisodes().get(idx);
             topEpisodes.merge(episode.getName(), 1, Integer::sum);
-            Listener listener = GlobalWaves.getInstance().getUsers().get(userPlayer.getOwner());
+            Listener listener = GlobalWaves.getInstance().getListeners().get(userPlayer.getOwner());
             if (!listeners.contains(listener)) {
                 listeners.add(listener);
             }

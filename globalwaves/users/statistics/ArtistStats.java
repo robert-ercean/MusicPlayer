@@ -56,24 +56,26 @@ public class ArtistStats extends UserStatsObserver {
     @Override
     public void update(String eventType, Player userPlayer, int idx) {
         switch (eventType) {
-            case "song", "playlist" -> {
-                Song song = eventType.equals("song") ? userPlayer.getCurrentSong()
-                        : userPlayer.getCurrentPlaylist().getSongsList().get(idx);
-                if (song.getArtist().equals(super.username)) {
-                    topSongs.merge(song.getName(), 1, Integer::sum);
-                    topAlbums.merge(song.getAlbum(), 1, Integer::sum);
-                    Listener listener = GlobalWaves.getInstance().getUsers().get(userPlayer.getOwner());
-                    topFans.merge(listener.getUsername(), 1, Integer::sum);
-                }
-            }
+            case "song", "playlist" -> processMusicEvent(userPlayer, eventType, idx);
         }
     }
     @Override
     public boolean isEmpty() {
         return topAlbums.isEmpty() && topSongs.isEmpty() && topFans.isEmpty();
     }
+    private void processMusicEvent(Player userPlayer, String eventType, int idx) {
+        Song song = eventType.equals("song") ? userPlayer.getCurrentSong()
+                : userPlayer.getCurrentPlaylist().getSongsList().get(idx);
+        if (song.getArtist().equals(super.username)) {
+            topSongs.merge(song.getName(), 1, Integer::sum);
+            topAlbums.merge(song.getAlbum(), 1, Integer::sum);
+            Listener listener = GlobalWaves.getInstance().getListeners().get(userPlayer.getOwner());
+            topFans.merge(listener.getUsername(), 1, Integer::sum);
+        }
+    }
     public MonetizationStats getMonetizationStats() {
         double totalSongsRevenue = songsRevenue.values().stream().mapToDouble(Double::doubleValue).sum();
+        /* round artist's total song revenue to 2 decimals */
         monetizationStats.setSongRevenue(Math.round(totalSongsRevenue * 100.0) / 100.0);
         monetizationStats.setMostProfitableSong(getSongWithMostRevenue().orElse("N/A"));
         return monetizationStats;
@@ -81,6 +83,7 @@ public class ArtistStats extends UserStatsObserver {
 
     /**
      * @return the name of the song with the most revenue
+     * easier to return "N/A" if there are no songs with revenue
      */
     public Optional<String> getSongWithMostRevenue() {
         return songsRevenue.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey);

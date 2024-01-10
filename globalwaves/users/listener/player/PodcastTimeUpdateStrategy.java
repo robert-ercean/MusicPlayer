@@ -22,7 +22,7 @@ public class PodcastTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                 if (episodeIdx + 1 >= podcastSize || pastTime > remainingTime) {
                     user.setPlayerToEmpty();
                     user.getUserPlayer().getCurrentPodcast().setIdx(0);
-                    user.notifyObservers("episode", userPlayer, episodeIdx);
+                    user.notifyStatsObservers("episode", userPlayer, episodeIdx);
                     break;
                 }
                 newIdx = userPlayer.getCurrentPodcast().
@@ -38,7 +38,7 @@ public class PodcastTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                 userPlayer.getCurrentPodcast().setIdx(newIdx);
                 // iterate over all the played episodes and notify the observers of each one
                 for (int i = episodeIdx; i < newIdx; i++) {
-                    user.notifyObservers("episode", userPlayer, i);
+                    user.notifyStatsObservers("episode", userPlayer, i);
                 }
                 break;
             case REPEAT_ONCE:

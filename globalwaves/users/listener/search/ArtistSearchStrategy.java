@@ -13,7 +13,7 @@ import static constants.Constants.MAX;
 public final class ArtistSearchStrategy implements SearchStrategy {
     @Override
     public Output search(final CommandInput command) {
-        Listener user = GlobalWaves.getInstance().getUsers().get(command.getUsername());
+        Listener user = GlobalWaves.getInstance().getListeners().get(command.getUsername());
         List<String> artists = new ArrayList<>();
         for (String artist : GlobalWaves.getInstance().getArtists().keySet()) {
             if (artist.toLowerCase().startsWith(command.getFilters().getName().toLowerCase())) {

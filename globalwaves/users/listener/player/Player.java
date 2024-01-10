@@ -62,9 +62,9 @@ public class Player {
         this.audioFileName = album.getSongs().get(0).getName();
         this.remainedTime = album.getSongs().get(0).getDuration();
         this.currentSong = album.getSongs().get(0);
-        Listener user = GlobalWaves.getInstance().getUsers().get(owner);
+        Listener user = GlobalWaves.getInstance().getListeners().get(owner);
         Artist artist = GlobalWaves.getInstance().getArtists().get(album.getOwner());
-        user.registerObserver(artist.getStats());
+        user.registerStatsObserver(artist.getStats());
     }
     public Player(final Song song, final String owner) {
         this.owner = owner;
@@ -72,9 +72,9 @@ public class Player {
         this.remainedTime = song.getDuration();
         this.paused = false;
         this.audioFileName = song.getName();
-        Listener user = GlobalWaves.getInstance().getUsers().get(owner);
+        Listener user = GlobalWaves.getInstance().getListeners().get(owner);
         Artist artist = GlobalWaves.getInstance().getArtists().get(song.getArtist());
-        user.registerObserver(artist.getStats());
+        user.registerStatsObserver(artist.getStats());
     }
     public Player(final Podcast podcast, final String owner) {
         this.owner = owner;
@@ -82,9 +82,9 @@ public class Player {
         this.remainedTime = podcast.getEpisodes().get(0).getDuration();
         this.audioFileName = podcast.getEpisodes().get(0).getName();
         this.paused = false;
-        Listener user = GlobalWaves.getInstance().getUsers().get(owner);
+        Listener user = GlobalWaves.getInstance().getListeners().get(owner);
         Host host = GlobalWaves.getInstance().getHosts().get(podcast.getOwner());
-        user.registerObserver(host.getStats());
+        user.registerStatsObserver(host.getStats());
     }
     /** Don't register any observer here, because if we have an existing podcast state,
      *  it means that the user has already registered the host's stats as an observer
@@ -102,9 +102,9 @@ public class Player {
         this.audioFileName = playlist.getSongsList().get(0).getName();
         this.remainedTime = playlist.getSongsList().get(0).getDuration();
         this.currentSong = playlist.getSongsList().get(0);
-        Listener user = GlobalWaves.getInstance().getUsers().get(owner);
+        Listener user = GlobalWaves.getInstance().getListeners().get(owner);
         Artist artist = GlobalWaves.getInstance().getArtists().get(playlist.getOwner());
-        user.registerObserver(artist.getStats());
+        user.registerStatsObserver(artist.getStats());
     }
     /**
      * Changes the repeat status of the current media, depending on the type of media and

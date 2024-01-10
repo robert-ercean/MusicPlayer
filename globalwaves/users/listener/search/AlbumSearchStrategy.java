@@ -10,12 +10,10 @@ import output.Output;
 import java.util.ArrayList;
 import java.util.List;
 
-import static constants.Constants.MAX;
-
 public final class AlbumSearchStrategy implements SearchStrategy {
     @Override
     public Output search(final CommandInput command) {
-        Listener user = GlobalWaves.getInstance().getUsers().get(command.getUsername());
+        Listener user = GlobalWaves.getInstance().getListeners().get(command.getUsername());
         List<Album> allAlbums = GlobalWaves.getInstance().getAllAlbums();
         List<Album> matchingAlbums = new ArrayList<>();
         for (Album album : allAlbums) {

@@ -1,7 +1,7 @@
 package globalwaves;
 
 import fileio.input.CommandInput;
-import fileio.input.LibraryInput;
+import fileio.input.Library;
 import fileio.input.UserInput;
 import globalwaves.admin.Admin;
 import globalwaves.audiofiles.Album;
@@ -39,15 +39,14 @@ public final class GlobalWaves {
     private static GlobalWaves instance;
 
     private Admin admin;
-    private LibraryInput library;
+    private Library library;
     private LikedAudioFiles userInteractions; // liked songs, playlists (listeners interactions)
-    private Map<String, Listener> users; // normal users
+    private Map<String, Listener> listeners; // listeners
     private Map<String, Artist> artists;
     private Map<String, Host> hosts;
 
     private GlobalWaves() {
     }
-
     /**
      * Singleton lazy initialization
      * @return GlobalWaves instance
@@ -62,14 +61,14 @@ public final class GlobalWaves {
     /**
      * @param library for inputting the library files into my global waves instance
      */
-    public static void initialize(final LibraryInput library) {
-        GlobalWaves.getInstance().users = new LinkedHashMap<>();
+    public static void initialize(final Library library) {
+        GlobalWaves.getInstance().listeners = new LinkedHashMap<>();
         for (UserInput userInput : library.getUsers()) {
             Listener user = new Listener(userInput);
-            GlobalWaves.getInstance().getUsers().put(userInput.getUsername(), user);
+            GlobalWaves.getInstance().getListeners().put(userInput.getUsername(), user);
         }
-        GlobalWaves.getInstance().setUserInteractions(new LikedAudioFiles());
-        GlobalWaves.getInstance().setLibrary(library);
+        GlobalWaves.getInstance().library = library;
+        GlobalWaves.getInstance().userInteractions= new LikedAudioFiles();
         GlobalWaves.getInstance().artists = new LinkedHashMap<>();
         GlobalWaves.getInstance().hosts = new LinkedHashMap<>();
         GlobalWaves.getInstance().admin = new Admin();
@@ -82,7 +81,7 @@ public final class GlobalWaves {
         if (!userExists(command, output, "listener")) {
             return output;
         }
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         Artist artist = parse_merch_artist(command);
         if (artist == null) {
             output.setMessage("The artist associated with " + command.getName() + " doesn't exist.");
@@ -103,7 +102,7 @@ public final class GlobalWaves {
         return null;
     }
     public Output cancelPremium(CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         Output output = Output.getOutputTemplate(command);
         if (!userExists(command, output, "listener")) {
             return output;
@@ -111,7 +110,7 @@ public final class GlobalWaves {
         return user.cancelPremium(output);
     }
     public Output buyPremium(CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         Output output = Output.getOutputTemplate(command);
         if (!userExists(command, output, "listener")) {
             return output;
@@ -127,7 +126,7 @@ public final class GlobalWaves {
         Map<String, MonetizationStats> resultMap =
                 (Map<String, MonetizationStats>) output.getResult();
         /* Firstly, update the monetization from each listener that still has a premium subscription */
-        for (Listener listener : this.users.values()) {
+        for (Listener listener : this.listeners.values()) {
             if (listener.isPremium()) {
                 listener.getStats().updateMonetization();
             }
@@ -177,13 +176,11 @@ public final class GlobalWaves {
         updateTimestamps(command.getTimestamp());
         Output output = Output.getOutputTemplate(command);
         User user = getUser(command.getUsername());
-        if (user == null) {
-            System.out.println("User " + command.getUsername() + " does not exist.");
-        }
+        assert user != null;
         return user.wrapped(command);
     }
     private void updateTimestamps(final int timestamp) {
-        for (Listener user : this.users.values()) {
+        for (Listener user : this.listeners.values()) {
             Player player = user.getUserPlayer();
             if (player != null) {
                 updatePlayerTime(user, timestamp);
@@ -191,8 +188,8 @@ public final class GlobalWaves {
         }
     }
     public User getUser(final String username) {
-        if (this.users.containsKey(username)) {
-            return this.users.get(username);
+        if (this.listeners.containsKey(username)) {
+            return this.listeners.get(username);
         } else if (this.artists.containsKey(username)) {
             return this.artists.get(username);
         } else if (this.hosts.containsKey(username)) {
@@ -206,7 +203,7 @@ public final class GlobalWaves {
     public Output getAllUsers(final CommandInput command) {
         Output output = new Output(command.getCommand(), command.getTimestamp());
         List<String> result = new ArrayList<>();
-        List<String> listenersNames = new ArrayList<>(this.users.keySet());
+        List<String> listenersNames = new ArrayList<>(this.listeners.keySet());
         List<String> artistsNames = new ArrayList<>(this.artists.keySet());
         List<String> hostsNames = new ArrayList<>(this.hosts.keySet());
 
@@ -225,7 +222,7 @@ public final class GlobalWaves {
         if (output.getResult() == null) {
             output.setResult(new ArrayList<String>());
         }
-        for (Listener user : this.users.values()) {
+        for (Listener user : this.listeners.values()) {
             if (user.getConnectionStatus().equals(CONNECTED)) {
                 ((List<String>) output.getResult()).add(user.getUsername());
             }
@@ -237,7 +234,7 @@ public final class GlobalWaves {
      */
     public Output printUserCurrentPage(final CommandInput command) {
         Output output = Output.getOutputTemplate(command);
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         if (!user.isConnected()) {
             output.setMessage(user.getUsername() + " is offline.");
             return output;
@@ -250,7 +247,7 @@ public final class GlobalWaves {
      */
     public Output changePage(final CommandInput command) {
         Output output = Output.getOutputTemplate(command);
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         output.setMessage(user.changePage(command));
         return output;
     }
@@ -258,42 +255,42 @@ public final class GlobalWaves {
      * Calls the user instance to load the selection
      */
     public Output load(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.load(command);
     }
     /**
      * Calls the user instance to select a media
      */
     public Output select(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.select(command);
     }
     /**
      * Calls the user instance to unpause or pause a media
      */
     public Output playPause(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.playPause(command);
     }
     /**
      * Retrieves the status of a user's account based on the input command.
      */
     public Output status(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.status(command);
     }
     /**
      * Calls the user instance to get the user's created playlists.
      */
     public Output showPlaylists(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.showPlaylists(command);
     }
     /**
      * Calls the user instance to add or remove a song in a playlist.
      */
     public Output addRemoveInPlaylist(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.addRemoveInPlaylist(command);
     }
 
@@ -301,76 +298,76 @@ public final class GlobalWaves {
      * Calls the user instance to create a new playlist.
      */
     public Output createPlaylist(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.createPlaylist(command);
     }
     /**
      * Calls the user instance to get the user's favorite songs.
      */
     public Output showPreferredSongs(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.showPreferredSongs(command);
     }
     /**
      * Calls the user instance to change the user's player repeat mode.
      */
     public Output repeat(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.repeat(command);
     }
     /**
      * Calls the user instance to like a song.
      */
     public Output like(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.like(command);
     }
     /**
      * Calls the user instance to switch the visibility of one of its playlists.
      */
     public Output switchVisibility(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.switchVisibility(command);
     }
     /**
      * Enables a user to follow another user or artist.
      */
     public Output follow(final CommandInput command) {
-        return this.users.get(command.getUsername()).follow(command);
+        return this.listeners.get(command.getUsername()).follow(command);
     }
     /**
      * Plays the previous song in the user's playlist.
      */
     public Output prev(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.prev(command);
     }
     /**
      * Plays the next song in the user's playlist.
      */
     public Output next(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.next(command);
     }
     /**
      * Rewinds the current song being played.
      */
     public Output backward(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.backward(command);
     }
     /**
      * Fast forwards the current song being played.
      */
     public Output forward(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.forward(command);
     }
     /**
      * Toggles the shuffle mode of the user's player.
      */
     public Output shuffle(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.shuffle(command);
     }
     /**
@@ -422,7 +419,7 @@ public final class GlobalWaves {
      * Allows an artist to remove an existing album.
      */
     public Output removeAlbum(final CommandInput command) {
-        for (Listener user : this.users.values()) {
+        for (Listener user : this.listeners.values()) {
             Player player = user.getUserPlayer();
             if (player != null) {
                 updatePlayerTime(user, command.getTimestamp());
@@ -524,13 +521,13 @@ public final class GlobalWaves {
         return context.exists(command, output);
     }
     public Output search(final CommandInput command) {
-        Listener user = this.users.get(command.getUsername());
+        Listener user = this.listeners.get(command.getUsername());
         return user.search(command);
     }
     public boolean isInteracting(final String username) {
         User user;
-        if (this.users.containsKey(username)) {
-            user = this.users.get(username);
+        if (this.listeners.containsKey(username)) {
+            user = this.listeners.get(username);
         } else if (this.artists.containsKey(username)) {
             user = this.artists.get(username);
         } else if (this.hosts.containsKey(username)) {

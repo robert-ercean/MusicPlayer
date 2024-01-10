@@ -6,10 +6,11 @@ import fileio.input.CommandInput;
 import fileio.input.SongInput;
 import globalwaves.GlobalWaves;
 import globalwaves.users.User;
+import globalwaves.users.listener.notifications.Notifications;
+import globalwaves.users.listener.notifications.NotificationsObserver;
 import globalwaves.users.statistics.ArtistStats;
 import globalwaves.users.listener.Listener;
 import globalwaves.users.listener.player.Player;
-import globalwaves.users.statistics.MonetizationStats;
 import lombok.Getter;
 import lombok.Setter;
 import globalwaves.pages.artist.ArtistPage;
@@ -26,16 +27,38 @@ import java.util.Set;
 
 @Getter
 @Setter
-public final class Artist extends User {
+public final class Artist extends User implements Notifications {
     private final Page artistpage;
     private final ArtistStats stats;
+    private List<NotificationsObserver> notificationsObservers;
     public Artist(final CommandInput command) {
         super.setUsername(command.getUsername());
         super.setAge(command.getAge());
         super.setCity(command.getCity());
         this.artistpage = PageFactory.createPage(null, "artist", super.getUsername());
         this.stats = new ArtistStats(super.getUsername());
+        this.notificationsObservers = new ArrayList<>();
     }
+    @Override
+    public String registerSubscriber(NotificationsObserver o) {
+        if (this.notificationsObservers.contains(o)) {
+            return removeSubscriber(o);
+        }
+        this.notificationsObservers.add(o);
+        return o.getUsername() + " subscribed to " + this.getUsername() + " successfully.";
+    }
+    @Override
+    public String removeSubscriber(NotificationsObserver o) {
+        this.notificationsObservers.remove(o);
+        return o.getUsername() + " unsubscribed from " + this.getUsername() + " successfully.";
+    }
+    @Override
+    public void notifySubscribers(String eventType) {
+        for (NotificationsObserver o : this.notificationsObservers) {
+            o.update(eventType);
+        }
+    }
+
     @Override
     public Output wrapped(CommandInput command) {
         return this.stats.display(command);
@@ -186,7 +209,7 @@ public final class Artist extends User {
     }
     @Override
     public boolean isInteracting() {
-        for (Listener user : GlobalWaves.getInstance().getUsers().values()) {
+        for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
             if (user.getCurrentPage().getOwner().equals(super.getUsername())) {
                 return true;
             }

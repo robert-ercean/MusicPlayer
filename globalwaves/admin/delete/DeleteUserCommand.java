@@ -1,7 +1,7 @@
 package globalwaves.admin.delete;
 
 import fileio.input.CommandInput;
-import fileio.input.LibraryInput;
+import fileio.input.Library;
 import globalwaves.GlobalWaves;
 import globalwaves.admin.AdminCommand;
 import globalwaves.audiofiles.LikedAudioFiles;
@@ -22,7 +22,7 @@ import static globalwaves.users.listener.player.Player.updatePlayerTime;
 public final class DeleteUserCommand implements AdminCommand {
     @Override
     public Output execute(final CommandInput command)  {
-        for (Listener user : GlobalWaves.getInstance().getUsers().values()) {
+        for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
             Player player = user.getUserPlayer();
             if (player != null) {
                 updatePlayerTime(user, command.getTimestamp());
@@ -44,7 +44,7 @@ public final class DeleteUserCommand implements AdminCommand {
 
         switch (userType) {
             case "user" -> {
-                if (GlobalWaves.getInstance().getUsers().get(username).isPremium()) {
+                if (GlobalWaves.getInstance().getListeners().get(username).isPremium()) {
                     output.setMessage("User is premium.");
                     return output;
                 }
@@ -108,7 +108,7 @@ public final class DeleteUserCommand implements AdminCommand {
         return "";
     }
     private Map<String, Listener> getUsers() {
-        return GlobalWaves.getInstance().getUsers();
+        return GlobalWaves.getInstance().getListeners();
     }
     private Map<String, Artist> getArtists() {
         return GlobalWaves.getInstance().getArtists();
@@ -116,7 +116,7 @@ public final class DeleteUserCommand implements AdminCommand {
     private Map<String, Host> getHosts() {
         return GlobalWaves.getInstance().getHosts();
     }
-    private LibraryInput getLibrary() {
+    private Library getLibrary() {
         return GlobalWaves.getInstance().getLibrary();
     }
     private LikedAudioFiles getUserInteractions() {

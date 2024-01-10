@@ -19,7 +19,7 @@ public final class AddUserCommand implements AdminCommand {
         final String type = command.getType();
         final String username = command.getUsername();
 
-        Map<String, Listener> users = GlobalWaves.getInstance().getUsers();
+        Map<String, Listener> users = GlobalWaves.getInstance().getListeners();
         Map<String, Artist> artists = GlobalWaves.getInstance().getArtists();
         Map<String, Host> hosts = GlobalWaves.getInstance().getHosts();
 

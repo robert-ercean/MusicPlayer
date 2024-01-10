@@ -1,6 +1,9 @@
 package globalwaves.pages.artist;
 
+import globalwaves.GlobalWaves;
 import globalwaves.audiofiles.Album;
+import globalwaves.users.User;
+import globalwaves.users.artist.Artist;
 import globalwaves.users.artist.Event;
 import globalwaves.users.artist.Merch;
 import lombok.Getter;
@@ -21,6 +24,14 @@ public final class ArtistPage extends Page {
         this.events = new ArrayList<>();
         this.merch = new ArrayList<>();
         this.albums = new ArrayList<>();
+    }
+
+    /**
+     * @return "User" class instance of the owner of this page
+     */
+    @Override
+    public Artist getOwner() {
+        return GlobalWaves.getInstance().getArtists().get(super.owner);
     }
     /**
      * @return the total number of likes for all the albums

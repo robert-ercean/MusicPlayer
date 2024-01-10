@@ -1,4 +1,4 @@
-package globalwaves.pages.user;
+package globalwaves.pages.listener;
 
 import globalwaves.audiofiles.Playlist;
 import globalwaves.audiofiles.Song;
@@ -40,9 +40,9 @@ public final class HomePage extends LikedContentPage {
         this.likedSongs.clear();
         this.followedPlaylists.clear();
 
-        List<Song> allLikedSongs = GlobalWaves.getInstance().getUsers().
+        List<Song> allLikedSongs = GlobalWaves.getInstance().getListeners().
                 get(super.getOwner()).getLikedContentPage().getLikedSongs();
-        List<Playlist> allFollowedPlaylists = GlobalWaves.getInstance().getUsers().
+        List<Playlist> allFollowedPlaylists = GlobalWaves.getInstance().getListeners().
                 get(super.getOwner()).getLikedContentPage().getFollowedPlaylists();
         this.likedSongs.addAll(
             allLikedSongs.stream()

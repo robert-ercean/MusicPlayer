@@ -15,9 +15,9 @@ import static globalwaves.users.listener.player.Player.updatePlayerTime;
 public final class SwitchConnectionStatus implements AdminCommand {
     @Override
     public Output execute(final CommandInput command) {
-        updatePlayerTime(GlobalWaves.getInstance().getUsers().
+        updatePlayerTime(GlobalWaves.getInstance().getListeners().
                 get(command.getUsername()), command.getTimestamp());
-        Map<String, Listener> users = GlobalWaves.getInstance().getUsers();
+        Map<String, Listener> users = GlobalWaves.getInstance().getListeners();
         Map<String, Artist> artists = GlobalWaves.getInstance().getArtists();
         Map<String, Host> hosts = GlobalWaves.getInstance().getHosts();
 

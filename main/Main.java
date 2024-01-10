@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import fileio.input.CommandInput;
-import fileio.input.LibraryInput;
+import fileio.input.Library;
 import globalwaves.process.ProcessCommand;
 
 import java.io.File;
@@ -76,7 +76,7 @@ public final class Main {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        LibraryInput library = objectMapper.readValue(new File(LIBRARY_PATH), LibraryInput.class);
+        Library library = objectMapper.readValue(new File(LIBRARY_PATH), Library.class);
 
         List<CommandInput> commands = objectMapper.readValue(new File(filePathInput),
                 new TypeReference<>() { });

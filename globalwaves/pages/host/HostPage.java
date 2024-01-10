@@ -1,8 +1,11 @@
 package globalwaves.pages.host;
 
+import globalwaves.GlobalWaves;
 import globalwaves.audiofiles.Podcast;
 import fileio.input.EpisodeInput;
+import globalwaves.users.User;
 import globalwaves.users.host.Announcement;
+import globalwaves.users.host.Host;
 import lombok.Getter;
 import lombok.Setter;
 import globalwaves.pages.Page;
@@ -19,7 +22,13 @@ public final class HostPage extends Page {
         this.podcasts = new ArrayList<>();
         this.announcements = new ArrayList<>();
     }
-
+    /**
+     * @return "User" class instance of the owner of this page
+     */
+    @Override
+    public Host getOwner() {
+        return GlobalWaves.getInstance().getHosts().get(super.owner);
+    }
     @Override
     public String display() {
         return "Podcasts:\n\t["

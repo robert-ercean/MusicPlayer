@@ -12,7 +12,6 @@ import output.Output;
 import output.WrappedStatsForOutput;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -61,21 +60,20 @@ public class ListenerStats extends UserStatsObserver {
      * The revenue will be stored in the artist's stats
      */
     public void updateMonetization() {
-        Listener listener = GlobalWaves.getInstance().getUsers().get(super.username);
-        double credits = listener.getCredits();
+        Listener listener = GlobalWaves.getInstance().getListeners().get(super.username);
         // store the total number of songs listened to all artists while the user had a premium subscription
         int listensToAllArtists = premiumListensToSong.values().stream()
                 .mapToInt(artistMap -> artistMap.values().stream().mapToInt(Integer::intValue).sum()).sum();
         for (Map.Entry<String, Map<String, Integer>> artistEntry : premiumListensToSong.entrySet()) {
-            // store the total number of songs listened to the artist while the user had a premium subscription
+            /* store the total number of songs listened to the artist while the user had a premium subscription */
             Artist artist = GlobalWaves.getInstance().getArtists().get(artistEntry.getKey());
             ArtistStats artistStats = artist.getStats();
             Map<String, Integer> songListensMap = artistEntry.getValue();
             /* For each song listened while premium, add the corresponding revenue generated
-            * to the artist statistics */
+             * to the artist statistics */
             for (Map.Entry<String, Integer> songEntry : songListensMap.entrySet()) {
                 String songName = songEntry.getKey();
-                double revenue = credits * songEntry.getValue() / listensToAllArtists;
+                double revenue = (double)listener.getCredits() * songEntry.getValue() / listensToAllArtists;
                 artistStats.getSongsRevenue().merge(songName, revenue, Double::sum);
             }
         }
@@ -91,14 +89,14 @@ public class ListenerStats extends UserStatsObserver {
         Song song = eventType.equals("song") ? userPlayer.getCurrentSong()
                 : userPlayer.getCurrentPlaylist().getSongsList().get(idx);
         updateMusicStatistics(song);
-        Listener listener = GlobalWaves.getInstance().getUsers().get(userPlayer.getOwner());
+        Listener listener = GlobalWaves.getInstance().getListeners().get(userPlayer.getOwner());
         if (listener.isPremium()) {
             premiumListensToSong.putIfAbsent(song.getArtist(), new HashMap<>());
             premiumListensToSong.get(song.getArtist()).merge(song.getName(), 1, Integer::sum);
         }
     }
     private void processPodcastEvent(Player userPlayer, int idx) {
-        EpisodeInput episode = (EpisodeInput) userPlayer.getCurrentPodcast().getEpisodes().get(idx);
+        EpisodeInput episode = userPlayer.getCurrentPodcast().getEpisodes().get(idx);
         topEpisodes.merge(episode.getName(), 1, Integer::sum);
     }
     private void updateMusicStatistics(Song song) {

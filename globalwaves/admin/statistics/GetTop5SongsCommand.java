@@ -1,7 +1,7 @@
 package globalwaves.admin.statistics;
 
 import fileio.input.CommandInput;
-import fileio.input.LibraryInput;
+import fileio.input.Library;
 import fileio.input.SongInput;
 import globalwaves.GlobalWaves;
 import globalwaves.admin.AdminCommand;
@@ -40,7 +40,7 @@ public final class GetTop5SongsCommand implements AdminCommand {
      * @return the sorted songs
      */
     private static List<SongInput> getSortedSongs(final LikedAudioFiles userInteractions,
-                                                  final LibraryInput library) {
+                                                  final Library library) {
         Map<Song, Integer> likeCountMap = userInteractions.getSongLikeCountMap();
 
         List<SongInput> sortedSongs = new ArrayList<>(library.getSongs());
