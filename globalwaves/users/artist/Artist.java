@@ -40,7 +40,7 @@ public final class Artist extends User implements NotificationsFunctionalities {
         this.notificationsObservers = new ArrayList<>();
     }
     @Override
-    public String registerSubscriber(NotificationsObserver o) {
+    public String registerSubscriber(final NotificationsObserver o) {
         if (this.notificationsObservers.contains(o)) {
             return removeSubscriber(o);
         }
@@ -48,19 +48,19 @@ public final class Artist extends User implements NotificationsFunctionalities {
         return o.getUsername() + " subscribed to " + this.getUsername() + " successfully.";
     }
     @Override
-    public String removeSubscriber(NotificationsObserver o) {
+    public String removeSubscriber(final NotificationsObserver o) {
         this.notificationsObservers.remove(o);
         return o.getUsername() + " unsubscribed from " + this.getUsername() + " successfully.";
     }
     @Override
-    public void notifySubscribers(String eventType, User user) {
+    public void notifySubscribers(final String eventType, final User user) {
         for (NotificationsObserver o : this.notificationsObservers) {
             o.update(eventType, user);
         }
     }
 
     @Override
-    public Output wrapped(CommandInput command) {
+    public Output wrapped(final CommandInput command) {
         return this.stats.display(command);
     }
     public int getTotalLikeCount() {
@@ -213,7 +213,7 @@ public final class Artist extends User implements NotificationsFunctionalities {
     @Override
     public boolean isInteracting() {
         for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
-            if (user.getCurrentPage().getOwner().equals(super.getUsername())) {
+            if (user.getCurrentPage().getOwner().getUsername().equals(super.getUsername())) {
                 return true;
             }
             Player player = user.getUserPlayer();

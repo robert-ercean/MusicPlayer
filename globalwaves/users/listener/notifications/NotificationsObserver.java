@@ -6,6 +6,10 @@ import lombok.Getter;
 @Getter
 public abstract class NotificationsObserver {
     String username;
+    /**
+     * @param eventType the type of event that happened
+     * @param user the user that triggered the event
+     */
     public abstract void update(String eventType, User user);
 
     /**
@@ -14,7 +18,7 @@ public abstract class NotificationsObserver {
      * @return true if the usernames are equal, false otherwise
      */
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -23,6 +27,11 @@ public abstract class NotificationsObserver {
         }
         return username.equals(that.username);
     }
+    /**
+     * Hashcode override to check if a notifications observer is already in
+     * the observers list of an artist or host(using the .contains() method)
+     * @return the hashcode of the username
+     */
     @Override
     public int hashCode() {
         return username.hashCode();

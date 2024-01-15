@@ -15,7 +15,8 @@ public final class Constants {
     public static final String LIKED_CONTENT_PAGE = "LikedContentPage";
     public static final int MAX = 5;
     public static final int MIN_TIME = 90;
-
+    public static final int MAX_CREDITS = 1000000;
+    public static final double HUNDRED = 100;
     private Constants() {
     }
 }

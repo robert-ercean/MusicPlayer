@@ -13,7 +13,7 @@ import java.util.List;
 
 import static constants.Constants.MAX;
 public final class PodcastSearchStrategy implements SearchStrategy {
-    @Override   
+    @Override
     public Output search(final CommandInput command) {
         Listener user = GlobalWaves.getInstance().getListeners().get(command.getUsername());
         List<PodcastInput> allPodcasts = GlobalWaves.getInstance().getLibrary().getPodcasts();

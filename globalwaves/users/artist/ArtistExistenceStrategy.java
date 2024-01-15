@@ -9,8 +9,13 @@ import output.Output;
 import java.util.Map;
 
 public class ArtistExistenceStrategy implements UserExistenceStrategy {
+    /**
+     * artist specific existence strategy
+     * used for checking if the user exists and if it is an artist
+     * and setting the output string message accordingly
+     */
     @Override
-    public boolean exists(CommandInput command, Output output) {
+    public boolean exists(final CommandInput command, final Output output) {
         Map<String, Artist> artists = GlobalWaves.getInstance().getArtists();
         Map<String, Host> hosts = GlobalWaves.getInstance().getHosts();
         if (!GlobalWaves.getInstance().getListeners().containsKey(command.getUsername())

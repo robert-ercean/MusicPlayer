@@ -9,8 +9,11 @@ import output.Output;
 import java.util.Map;
 
 public class HostExistenceStrategy implements UserExistenceStrategy {
+    /**
+     * Checks if the user is a host and sets the appropriate message.
+     */
     @Override
-    public boolean exists(CommandInput command, Output output) {
+    public boolean exists(final CommandInput command, final Output output) {
         Map<String, Artist> artists = GlobalWaves.getInstance().getArtists();
         Map<String, Host> hosts = GlobalWaves.getInstance().getHosts();
         if (!GlobalWaves.getInstance().getListeners().containsKey(command.getUsername())

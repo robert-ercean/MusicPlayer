@@ -1,8 +1,5 @@
 package globalwaves.users.listener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import globalwaves.GlobalWaves;
 import globalwaves.audiofiles.Album;
@@ -37,6 +34,7 @@ import static constants.Constants.CONNECTED;
 import static constants.Constants.DISCONNECTED;
 import static constants.Constants.HOME_PAGE;
 import static constants.Constants.LIKED_CONTENT_PAGE;
+import static constants.Constants.MAX_CREDITS;
 import static constants.Constants.MIN_TIME;
 import static constants.Constants.NORMAL_USER;
 import static constants.Constants.NO_REPEAT;
@@ -92,28 +90,64 @@ public final class Listener extends User implements UserStatistics {
     private List<UserStatsObserver> statsObservers;
     private ListenerNotifications notifications;
 
+    /**
+     * for registering wrapped stats observers
+     * @param o - a host's or artist's stats observer
+     */
     @Override
-    public void registerStatsObserver(UserStatsObserver o) {
+    public void registerStatsObserver(final UserStatsObserver o) {
         if (this.statsObservers.contains(o)) {
             return;
         }
         this.statsObservers.add(o);
     }
+    /**
+     * for removing wrapped stats observers
+     * @param o - a host's or artist's stats observer
+     */
     @Override
-    public void removeStatsObserver(UserStatsObserver o) {
+    public void removeStatsObserver(final UserStatsObserver o) {
         this.statsObservers.remove(o);
     }
+    /**
+     * for notifying wrapped stats observers
+     * @param eventType - the type of event
+     * @param player - the player that triggered the event
+     * @param idx - the index of the song in the playlist
+     */
     @Override
-    public void notifyStatsObservers(String eventType, Player userPlayer, int idx) {
+    public void notifyStatsObservers(final String eventType, final Player player,
+                                     final int idx) {
         for (UserStatsObserver observer : statsObservers) {
-            observer.update(eventType, userPlayer, idx);
+            observer.update(eventType, player, idx);
         }
     }
+    /**
+     * displays a listener's wrapped stats
+     * @param command for getting the command parameters
+     * @return the output message
+     */
     @Override
-    public Output wrapped(CommandInput command) {
+    public Output wrapped(final CommandInput command) {
         return this.stats.display(command);
     }
-    public String buyMerch(Artist artist, String merchName) {
+
+    /**
+     * method for getting the listener's bought merch
+     * @return string list of merch names
+     */
+    public List<String> seeMerch() {
+        List<String> merchNameList = new ArrayList<>();
+        for (Merch merch : this.boughtMerch) {
+            merchNameList.add(merch.getName());
+        }
+        return merchNameList;
+    }
+
+    /**
+     * method for buying merch from an artist
+     */
+    public String buyMerch(final Artist artist, final String merchName) {
         ArtistPage artistPage = artist.getArtistpage();
         if (this.currentPage != artistPage) {
             return "Cannot buy merch from this page.";
@@ -135,7 +169,7 @@ public final class Listener extends User implements UserStatistics {
      * @param command to get the basic output template
      * @return success/error message
      */
-    public String subscribe(CommandInput command) {
+    public String subscribe(final CommandInput command) {
         Output output = Output.getOutputTemplate(command);
         switch (this.currentPage.getPageType()) {
             case "artist" -> {
@@ -146,21 +180,34 @@ public final class Listener extends User implements UserStatistics {
                 Host host = (Host) this.currentPage.getOwner();
                 return (host.registerSubscriber(this.notifications));
             }
+            default -> {
+                return "To subscribe you need to be on the page of an artist or host.";
+            }
         }
-        return ("To subscribe you need to be on the page of an artist or host.");
     }
-    public Output buyPremium(Output output) {
+
+    /**
+     * Method for subscribing / unsubscribing from an artist or host
+     * @param output to get the basic output template
+     * @return success/error message
+     */
+    public Output buyPremium(final Output output) {
         updatePlayerTime(this, output.getTimestamp());
         if (this.isPremium) {
             output.setMessage(super.getUsername() + " is already a premium user.");
             return output;
         }
         this.isPremium = true;
-        this.credits = 1000000;
+        this.credits = MAX_CREDITS;
         output.setMessage(super.getUsername() + " bought the subscription successfully.");
         return output;
     }
-    public Output cancelPremium(Output output) {
+    /**
+     * Method for cancelling the premium subscription
+     * @param output to get the basic output template
+     * @return success/error message
+     */
+    public Output cancelPremium(final Output output) {
         updatePlayerTime(this, output.getTimestamp());
         if (!this.isPremium) {
             output.setMessage(super.getUsername() + " is not a premium user.");
@@ -172,16 +219,27 @@ public final class Listener extends User implements UserStatistics {
         output.setMessage(super.getUsername() + " cancelled the subscription successfully.");
         return output;
     }
+    /**
+     * Method for getting the notifications of a listener
+     * @return list of notifications
+     */
     public List<Notification> getNotifications() {
-        List<Notification> notifications = this.notifications.getNotifications();
+        List<Notification> notifs = this.notifications.getNotifications();
         // need to copy this list because the notifications are cleared after being displayed
-        List<Notification> notificationsCopy = new ArrayList<>(notifications);
-        notifications.clear();
+        List<Notification> notificationsCopy = new ArrayList<>(notifs);
+        notifs.clear();
         return notificationsCopy;
     }
+    /**
+     * @return boolean indicating if this listener has a premium subscription
+     */
     public boolean isPremium() {
         return this.isPremium;
     }
+
+    /**
+     * @return this listeners' likedcontentpage
+     */
     public LikedContentPage getLikedContentPage() {
         return (LikedContentPage) this.likedContentPage;
     }
@@ -715,7 +773,8 @@ public final class Listener extends User implements UserStatistics {
      */
     public Output status(final CommandInput command) {
         updatePlayerTime(this, command.getTimestamp());
-        return new Output(command.getCommand(), command.getUsername(), command.getTimestamp(),userPlayer);
+        return new Output(command.getCommand(), command.getUsername(),
+                          command.getTimestamp(), userPlayer);
     }
     /** Changes the repeat status of the current media.
      * @param command for getting the command parameters
@@ -1012,5 +1071,9 @@ public final class Listener extends User implements UserStatistics {
             return false;
         }
         return this.getUsername().equals(listener.getUsername());
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getUsername());
     }
 }

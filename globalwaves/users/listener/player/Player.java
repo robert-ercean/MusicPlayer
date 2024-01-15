@@ -84,7 +84,9 @@ public class Player {
         this.paused = false;
         Listener user = GlobalWaves.getInstance().getListeners().get(owner);
         Host host = GlobalWaves.getInstance().getHosts().get(podcast.getOwner());
-        user.registerStatsObserver(host.getStats());
+        if (host != null) {
+            user.registerStatsObserver(host.getStats());
+        }
     }
     /** Don't register any observer here, because if we have an existing podcast state,
      *  it means that the user has already registered the host's stats as an observer

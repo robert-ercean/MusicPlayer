@@ -9,7 +9,6 @@ import output.Output;
 
 import java.util.List;
 public final class ProcessCommand {
-    public static int timestamp = 0;
     private ProcessCommand() {
     }
     /**
@@ -20,7 +19,6 @@ public final class ProcessCommand {
     executeCommands(final List<CommandInput> commands, final ObjectMapper objectMapper) {
         ArrayNode outputs = objectMapper.createArrayNode();
         for (CommandInput command : commands) {
-            ProcessCommand.timestamp = command.getTimestamp();
             switch (command.getCommand()) {
                 case "search":
                     outputs.add(objectMapper.valueToTree(processSearchCommand(command)));
@@ -135,6 +133,12 @@ public final class ProcessCommand {
                 case "wrapped":
                     outputs.add(objectMapper.valueToTree(wrapped(command)));
                     break;
+                case "buyMerch":
+                    outputs.add(objectMapper.valueToTree(processBuyMerch(command)));
+                    break;
+                case "seeMerch":
+                    outputs.add(objectMapper.valueToTree(processSeeMerch(command)));
+                    break;
                 case "getNotifications":
                     outputs.add(objectMapper.valueToTree(processGetNotifications(command)));
                     break;
@@ -150,6 +154,12 @@ public final class ProcessCommand {
         }
         outputs.add(objectMapper.valueToTree(endProgram()));
         return outputs;
+    }
+    private static Output processSeeMerch(final CommandInput command) {
+        return GlobalWaves.getInstance().seeMerch(command);
+    }
+    private static Output processBuyMerch(final CommandInput command) {
+        return GlobalWaves.getInstance().buyMerch(command);
     }
     private static Output processGetNotifications(final CommandInput command) {
         return GlobalWaves.getInstance().getNotifications(command);

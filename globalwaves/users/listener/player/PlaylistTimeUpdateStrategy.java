@@ -28,7 +28,8 @@ public class PlaylistTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                     user.getUserPlayer().getCurrentPlaylist().setIdx(0);
                     break;
                 }
-                newIdx = userPlayer.getCurrentPlaylist().getSongIdxByElapsedTime(pastTime, songIdx + 1);
+                newIdx = userPlayer.getCurrentPlaylist().
+                         getSongIdxByElapsedTime(pastTime, songIdx + 1);
                 if (newIdx == -1) { // this means that we finished the playlist
                     for (int i = (oldIdx == 0) ? 0 : oldIdx + 1; i < playlistSize; i++) {
                         user.notifyStatsObservers("playlist", userPlayer, i);
@@ -36,7 +37,8 @@ public class PlaylistTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                     user.setPlayerToEmpty();
                     break;
                 }
-                userPlayer.setCurrentSong(userPlayer.getCurrentPlaylist().getSongsList().get(newIdx));
+                userPlayer.setCurrentSong(userPlayer.getCurrentPlaylist().
+                           getSongsList().get(newIdx));
                 userPlayer.setAudioFileName(userPlayer.getCurrentSong().getName());
                 userPlayer.setRemainedTime(userPlayer.getCurrentSong().getDuration()
                         - userPlayer.getCurrentPlaylist().
@@ -67,7 +69,8 @@ public class PlaylistTimeUpdateStrategy implements PlayerTimeUpdateStrategy {
                 } else {
                     newIdx = userPlayer.getCurrentPlaylist().
                             getSongIdxByElapsedTime(pastTime, songIdx + 1);
-                    userPlayer.setCurrentSong(userPlayer.getCurrentPlaylist().getSongsList().get(newIdx));
+                    userPlayer.setCurrentSong(userPlayer.getCurrentPlaylist().
+                               getSongsList().get(newIdx));
                     userPlayer.setAudioFileName(userPlayer.getCurrentSong().getName());
                     userPlayer.setRemainedTime(userPlayer.getCurrentSong().getDuration()
                     - userPlayer.getCurrentPlaylist().getSongTimeStampByElapsedTime(

@@ -28,7 +28,7 @@ import java.util.Map;
 public final class Host extends User implements NotificationsFunctionalities {
     private final Page hostpage;
     private final HostStats stats;
-    private List<NotificationsObserver> notificationsObservers;
+    private final List<NotificationsObserver> notificationsObservers;
     /**
      * Constructor for the host
      */
@@ -38,9 +38,16 @@ public final class Host extends User implements NotificationsFunctionalities {
         super.setAge(command.getAge());
         this.hostpage = PageFactory.createPage(null, "host", super.getUsername());
         this.stats = new HostStats(super.getUsername());
+        this.notificationsObservers = new ArrayList<>();
+    }
+    public Host(final PodcastInput podcast) {
+        super.setUsername(podcast.getOwner());
+        this.hostpage = PageFactory.createPage(null, "host", super.getUsername());
+        this.stats = new HostStats(super.getUsername());
+        this.notificationsObservers = new ArrayList<>();
     }
     @Override
-    public String registerSubscriber(NotificationsObserver o) {
+    public String registerSubscriber(final NotificationsObserver o) {
         if (this.notificationsObservers.contains(o)) {
             return removeSubscriber(o);
         }
@@ -48,12 +55,12 @@ public final class Host extends User implements NotificationsFunctionalities {
         return o.getUsername() + " subscribed to " + this.getUsername() + " successfully.";
     }
     @Override
-    public String removeSubscriber(NotificationsObserver o) {
+    public String removeSubscriber(final NotificationsObserver o) {
         this.notificationsObservers.remove(o);
         return o.getUsername() + " unsubscribed from " + this.getUsername() + " successfully.";
     }
     @Override
-    public void notifySubscribers(String eventType, User user) {
+    public void notifySubscribers(final String eventType, final User user) {
         for (NotificationsObserver o : this.notificationsObservers) {
             o.update(eventType, user);
         }
@@ -61,7 +68,11 @@ public final class Host extends User implements NotificationsFunctionalities {
     public HostPage getHostpage() {
         return (HostPage) this.hostpage;
     }
-    public Output wrapped(CommandInput command) {
+
+    /**
+     * Displays a host's wrapped stats
+     */
+    public Output wrapped(final CommandInput command) {
         return this.stats.display(command);
     }
     /**
@@ -127,7 +138,6 @@ public final class Host extends User implements NotificationsFunctionalities {
         // create a list of maps to store the podcast information
         List<Map<String, Object>> podcastMaps = new ArrayList<>();
         for (Podcast podcast : podcasts) {
-            // Create a map to store the podcast name and episode names
             Map<String, Object> podcastMap = new HashMap<>();
             podcastMap.put("name", podcast.getName());
             // Create a list to store the episode names
@@ -182,7 +192,7 @@ public final class Host extends User implements NotificationsFunctionalities {
     public boolean isInteracting() {
         for (Listener user : GlobalWaves.getInstance().getListeners().values()) {
             // cant delete if a user's current page is the host page
-            if (user.getCurrentPage().getOwner().equals(super.getUsername())) {
+            if (user.getCurrentPage().getOwner().getUsername().equals(super.getUsername())) {
                 return true;
             }
             Player player = user.getUserPlayer();

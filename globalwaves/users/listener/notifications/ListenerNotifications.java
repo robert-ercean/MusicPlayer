@@ -7,49 +7,60 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Observer design pattern implementation for notifications
+ * In this class the notifications are managed allowing
+ * for further additions to the whole notification system
+ */
 @Getter
 public class ListenerNotifications extends NotificationsObserver {
     private final List<Notification> notifications;
 
-    public ListenerNotifications(String username) {
+    public ListenerNotifications(final String username) {
         this.notifications = new ArrayList<>();
         super.username = username;
     }
+    /**
+     * @param eventType the type of event that happened
+     * @param user the user that triggered the event
+     */
     @Override
-    public void update(String eventType, User user) {
+    public void update(final String eventType, final User user) {
         switch (eventType) {
             case "newEvent" -> processNewEvent((Artist) user);
             case "newMerch" -> processNewMerch((Artist) user);
             case "newAlbum" -> processNewAlbum((Artist) user);
             case "newPodcast" -> processNewPodcast((Host) user);
             case "newAnnouncement" -> processNewAnnouncement((Host) user);
+            default -> throw new IllegalStateException("Unexpected value: " + eventType);
         }
     }
-    private void processNewAlbum(Artist artist) {
+    private void processNewAlbum(final Artist artist) {
         Notification notification = new Notification();
         notification.setName("New Album");
         notification.setDescription("New Album from " + artist.getUsername() + ".");
         this.notifications.add(notification);
     }
-    private void processNewPodcast(Host host) {
+    private void processNewPodcast(final Host host) {
         Notification notification = new Notification();
         notification.setName("New Podcast");
         notification.setDescription("New Podcast from " + host.getUsername() + ".");
         this.notifications.add(notification);
     }
-    private void processNewEvent(Artist artist) {
+    private void processNewEvent(final Artist artist) {
         Notification notification = new Notification();
         notification.setName("New Event");
         notification.setDescription("New Event from " + artist.getUsername() + ".");
         this.notifications.add(notification);
     }
-    private void processNewMerch(Artist artist) {
+    private void processNewMerch(final Artist artist) {
         Notification notification = new Notification();
         notification.setName("New Merchandise");
         notification.setDescription("New Merchandise from " + artist.getUsername() + ".");
         this.notifications.add(notification);
     }
-    private void processNewAnnouncement(Host host) {
+    private void processNewAnnouncement(final Host host) {
         Notification notification = new Notification();
         notification.setName("New Announcement");
         notification.setDescription("New Announcement from " + host.getUsername() + ".");

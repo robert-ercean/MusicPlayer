@@ -29,10 +29,10 @@ public abstract class Page {
      * @return the type of the page
      */
     public String getPageType() {
-        List<String> listeners = GlobalWaves.getInstance().getListeners().keySet().stream().toList();
+        List<String> listnrs = GlobalWaves.getInstance().getListeners().keySet().stream().toList();
         List<String> artists = GlobalWaves.getInstance().getArtists().keySet().stream().toList();
         List<String> hosts = GlobalWaves.getInstance().getHosts().keySet().stream().toList();
-        if (listeners.contains(owner)) {
+        if (listnrs.contains(owner)) {
             return "listener";
         } else if (artists.contains(owner)) {
             return "artist";

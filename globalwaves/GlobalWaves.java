@@ -10,7 +10,6 @@ import globalwaves.users.User;
 import globalwaves.users.UserExistenceContext;
 import globalwaves.users.UserExistenceStrategy;
 import globalwaves.users.listener.Listener;
-import globalwaves.users.listener.notifications.Notification;
 import globalwaves.users.listener.player.Player;
 import globalwaves.users.statistics.ArtistStats;
 import lombok.Getter;
@@ -20,7 +19,11 @@ import output.Output;
 import globalwaves.users.artist.Artist;
 import globalwaves.users.host.Host;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static constants.Constants.CONNECTED;
@@ -69,30 +72,60 @@ public final class GlobalWaves {
             GlobalWaves.getInstance().getListeners().put(userInput.getUsername(), user);
         }
         GlobalWaves.getInstance().library = library;
-        GlobalWaves.getInstance().userInteractions= new LikedAudioFiles();
+        GlobalWaves.getInstance().userInteractions = new LikedAudioFiles();
         GlobalWaves.getInstance().artists = new LinkedHashMap<>();
         GlobalWaves.getInstance().hosts = new LinkedHashMap<>();
         GlobalWaves.getInstance().admin = new Admin();
     }
+
+    /**
+     * method through each admin command is executed
+     * @return Output class instance for serialization
+     */
     public Output executeAdminCommand(final CommandInput command) {
         return this.admin.executeCommand(command);
     }
+
+    /**
+     * method through each listener command is executed
+     * @return Output class instance for serialization with a listener's
+     * merch as the message
+     */
+    public Output seeMerch(final CommandInput command) {
+        Output output = Output.getOutputTemplate(command);
+        if (!userExists(command, output, "listener")) {
+            return output;
+        }
+        Listener user = this.listeners.get(command.getUsername());
+        output.setResult(user.seeMerch());
+        return output;
+    }
+    /**
+     * calls the listener instance to buy merch
+     */
     public Output buyMerch(final CommandInput command) {
         Output output = Output.getOutputTemplate(command);
         if (!userExists(command, output, "listener")) {
             return output;
         }
         Listener user = this.listeners.get(command.getUsername());
-        Artist artist = parse_merch_artist(command);
+        Artist artist = parseMerchDescription(command);
         if (artist == null) {
-            output.setMessage("The artist associated with " + command.getName() + " doesn't exist.");
+            output.setMessage("The artist associated with "
+                    + command.getName() + " doesn't exist.");
             return output;
         }
-        String merchName = command.getName().replace(artist.getUsername(), "").trim();
+        String merchName = command.getName();
         output.setMessage(user.buyMerch(artist, merchName));
         return output;
     }
-    private Artist parse_merch_artist(final CommandInput command) {
+
+    /**
+     * Method that parses the name of an artist's merch
+     * so its name can be extracted
+     * @return the artist instance whose merch is being bought
+     */
+    private Artist parseMerchDescription(final CommandInput command) {
         List<String> artistNames = this.artists.keySet().stream().toList();
         String commandDescription = command.getName();
         for (String artistName : artistNames) {
@@ -102,13 +135,20 @@ public final class GlobalWaves {
         }
         return null;
     }
+
+    /**
+     * calls the listener instance to get its notifications
+     */
     public Output getNotifications(final CommandInput command) {
         Output output = Output.getOutputTemplate(command);
         Listener user = this.listeners.get(command.getUsername());
         output.setNotifications(user.getNotifications());
         return output;
     }
-    public Output cancelPremium(CommandInput command) {
+    /**
+     * calls the listener instance to cancel its premium subscription
+     */
+    public Output cancelPremium(final CommandInput command) {
         Listener user = this.listeners.get(command.getUsername());
         Output output = Output.getOutputTemplate(command);
         if (!userExists(command, output, "listener")) {
@@ -116,7 +156,10 @@ public final class GlobalWaves {
         }
         return user.cancelPremium(output);
     }
-    public Output buyPremium(CommandInput command) {
+    /**
+     * calls the listener instance to buy a premium subscription
+     */
+    public Output buyPremium(final CommandInput command) {
         Listener user = this.listeners.get(command.getUsername());
         Output output = Output.getOutputTemplate(command);
         if (!userExists(command, output, "listener")) {
@@ -132,7 +175,7 @@ public final class GlobalWaves {
         output.setResult(new HashMap<String, MonetizationStats>());
         Map<String, MonetizationStats> resultMap =
                 (Map<String, MonetizationStats>) output.getResult();
-        /* Firstly, update the monetization from each listener that still has a premium subscription */
+        /* Update the monetization from each listener that still has a premium subscription */
         for (Listener listener : this.listeners.values()) {
             if (listener.isPremium()) {
                 listener.getStats().updateMonetization();
@@ -141,7 +184,7 @@ public final class GlobalWaves {
         for (Artist artist : this.artists.values()) {
             ArtistStats stats = artist.getStats();
             MonetizationStats monetizationStats = stats.getMonetizationStats();
-            if (!stats.isEmpty() || monetizationStats.merchRevenue != 0.0) {
+            if (!stats.isEmpty() || monetizationStats.getMerchRevenue() != 0.0) {
                 resultMap.put(artist.getUsername(), monetizationStats);
             }
         }
@@ -158,8 +201,10 @@ public final class GlobalWaves {
         AtomicInteger ranking = new AtomicInteger(1);
         Map<String, MonetizationStats> sortedMap = map.entrySet().stream()
                 .sorted((entry1, entry2) -> {
-                    double revenue1 = entry1.getValue().getSongRevenue() + entry1.getValue().getMerchRevenue();
-                    double revenue2 = entry2.getValue().getSongRevenue() + entry2.getValue().getMerchRevenue();
+                    double revenue1 = entry1.getValue().getSongRevenue()
+                            + entry1.getValue().getMerchRevenue();
+                    double revenue2 = entry2.getValue().getSongRevenue()
+                            + entry2.getValue().getMerchRevenue();
                     if (revenue1 == revenue2) {
                         return entry1.getKey().compareTo(entry2.getKey());
                     }
@@ -172,6 +217,10 @@ public final class GlobalWaves {
         map.clear();
         map.putAll(sortedMap);
     }
+
+    /**
+     * @return all the albums in the system
+     */
     public List<Album> getAllAlbums() {
         List<Album> albums = new ArrayList<>();
         for (Artist artist : this.artists.values()) {
@@ -179,6 +228,10 @@ public final class GlobalWaves {
         }
         return albums;
     }
+
+    /**
+     * @return shows wrapped stats of a certain user
+     */
     public Output wrapped(final CommandInput command) {
         updateTimestamps(command.getTimestamp());
         Output output = Output.getOutputTemplate(command);
@@ -186,6 +239,10 @@ public final class GlobalWaves {
         assert user != null;
         return user.wrapped(command);
     }
+
+    /**
+     * Updates the timestamps of all the listeners' players
+     */
     private void updateTimestamps(final int timestamp) {
         for (Listener user : this.listeners.values()) {
             Player player = user.getUserPlayer();
@@ -194,6 +251,11 @@ public final class GlobalWaves {
             }
         }
     }
+
+    /**
+     * might produce
+     * @return the user instance based on the username
+     */
     public User getUser(final String username) {
         if (this.listeners.containsKey(username)) {
             return this.listeners.get(username);
@@ -534,15 +596,29 @@ public final class GlobalWaves {
      * @param type to set the right checking strategy
      * @return true if the user exists, false otherwise
      */
-    private boolean userExists(final CommandInput command, final Output output, String type) {
+    private boolean userExists(final CommandInput command, final Output output, final String type) {
         UserExistenceContext context = new UserExistenceContext();
         UserExistenceStrategy.getExistenceStrategy(context, type);
         return context.exists(command, output);
     }
+
+    /**
+     * calls the listener instance to use the search bar
+     * @param command to parse search filters / user
+     * @return output indicating success or failure
+     */
     public Output search(final CommandInput command) {
         Listener user = this.listeners.get(command.getUsername());
         return user.search(command);
     }
+
+    /**
+     * checks to see if a user (including listeners, artists and hosts)
+     * is interacting with the app
+     * used primarily in deleting users - related commands
+     * @param username user to be checked
+     * @return boolean indicating if the user is interacting with the app
+     */
     public boolean isInteracting(final String username) {
         User user;
         if (this.listeners.containsKey(username)) {

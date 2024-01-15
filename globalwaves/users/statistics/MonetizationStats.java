@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MonetizationStats {
-    public double songRevenue;
+    private double songRevenue;
     public double merchRevenue;
-    public int ranking;
-    public String mostProfitableSong;
+    private int ranking;
+    private String mostProfitableSong;
 }

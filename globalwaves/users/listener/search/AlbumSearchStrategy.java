@@ -10,6 +10,8 @@ import output.Output;
 import java.util.ArrayList;
 import java.util.List;
 
+import static constants.Constants.MAX;
+
 public final class AlbumSearchStrategy implements SearchStrategy {
     @Override
     public Output search(final CommandInput command) {
@@ -20,7 +22,9 @@ public final class AlbumSearchStrategy implements SearchStrategy {
             if (matchesFiltersForAlbums(album, command)) {
                 matchingAlbums.add(album);
             }
-            if (matchingAlbums.size() == 5) { break; }
+            if (matchingAlbums.size() == MAX) {
+                break;
+            }
         }
         Output output = Output.getOutputTemplate(command);
         output.setResults(Album.albumsNamesToStringList(matchingAlbums));

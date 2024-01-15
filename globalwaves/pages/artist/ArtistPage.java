@@ -2,7 +2,6 @@ package globalwaves.pages.artist;
 
 import globalwaves.GlobalWaves;
 import globalwaves.audiofiles.Album;
-import globalwaves.users.User;
 import globalwaves.users.artist.Artist;
 import globalwaves.users.artist.Event;
 import globalwaves.users.artist.Merch;
